@@ -9,5 +9,9 @@ namespace FLMS.Data
 {
     public class FLMSContext : DbContext
     {
+        public FLMSContext(DbContextOptions<FLMSContext> options)
+       : base(options)
+        {
+        }
     }
 }
