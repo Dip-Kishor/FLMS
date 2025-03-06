@@ -15,7 +15,13 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\CommonServices\CommonServices.csproj" />
     <ProjectReference Include="..\FLMS.Data\FLMS.Data.csproj" />
+    <ProjectReference Include="..\FLMS.Services\FLMS.Services.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Areas\User\ViewModels\" />
   </ItemGroup>
 
 </Project>

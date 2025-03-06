@@ -6,4 +6,9 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\CommonServices\CommonServices.csproj" />
+    <ProjectReference Include="..\FLMS.Data\FLMS.Data.csproj" />
+  </ItemGroup>
+
 </Project>

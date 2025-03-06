@@ -10,7 +10,7 @@ namespace FLMS.Web.Controllers
         [HttpGet]
         public IActionResult Index()
         {
-            return Ok("...");
+            return Ok("Hello...");
         }
     }
 }

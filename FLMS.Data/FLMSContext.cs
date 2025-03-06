@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using FLMS.Models.User;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,5 +14,7 @@ namespace FLMS.Data
        : base(options)
         {
         }
+        public DbSet<EUser> Users { get; set; }
+        public DbSet<EUserRole> UserRoles { get; set; }
     }
 }
