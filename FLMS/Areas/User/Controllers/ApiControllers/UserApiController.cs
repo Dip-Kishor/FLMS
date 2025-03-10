@@ -28,15 +28,27 @@ namespace FLMS.Web.Areas.User.Controllers.ApiControllers
             };
         }
         [HttpPost("login")]
-        public ServiceResult<string> Login(LoginVM vm)
+        public ServiceResult<LoginResponse> Login(LoginVM vm)
         {
-            var result = _user.Login(vm);
-            return new ServiceResult<string>
+            var result = _user.Login(vm, Response);
+            return new ServiceResult<LoginResponse>
             {
                 Data = result.Data,
                 Message = result.Message,
                 Status = result.Status,
             };
         }
+        [HttpPost("logout")]
+        public ServiceResult<string> Logout()
+        {
+            Response.Cookies.Delete("accessToken");
+            return new ServiceResult<string>()
+            {
+                Data = null,
+                Message = "Logout successful",
+                Status = ResultStatus.Ok
+            };
+        }
+
     }
 }
