@@ -2,6 +2,7 @@
 using FLMS.Data;
 using FLMS.Models.User;
 using FLMS.Services.User.ViewModels;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
@@ -43,6 +44,15 @@ namespace FLMS.Services.User
                 Password = user.password, 
                 ConfirmPassword = user.confirmPassword,
             };
+            if(user.password != user.confirmPassword)
+            {
+                return new ServiceResult<UserVM>
+                {
+                    Data = null,
+                    Message = "Password and confirm password must be same",
+                    Status = ResultStatus.processError
+                };
+            }
             var existingUser = _context.Users.FirstOrDefault(x => x.Email == data.Email);
             if (existingUser != null)
             {
@@ -75,51 +85,69 @@ namespace FLMS.Services.User
                 Status = ResultStatus.Ok
             };
         }
-        public ServiceResult<string> Login(LoginVM vm)
+        public ServiceResult<LoginResponse> Login(LoginVM vm, HttpResponse response)
         {
             if (vm == null)
             {
-                return new ServiceResult<string>
+                return new ServiceResult<LoginResponse>
                 {
                     Data = null,
                     Message = "Input is empty",
                     Status = ResultStatus.processError
                 };
             }
+
             var getUser = _context.Users.FirstOrDefault(x => x.Email == vm.email);
             if (getUser == null)
             {
-                return new ServiceResult<string>
+                return new ServiceResult<LoginResponse>
                 {
                     Data = null,
                     Message = "User not found",
                     Status = ResultStatus.processError
                 };
             }
-            if(getUser.Password != vm.password)
+
+            if (getUser.Password != vm.password)
             {
-                return new ServiceResult<string>
+                return new ServiceResult<LoginResponse>
                 {
                     Data = null,
-                    Message = "Inavalid username or password",
+                    Message = "Invalid username or password",
                     Status = ResultStatus.processError
                 };
             }
+
             var userRole = _context.Users
-            .Include(u => u.Role)
-            .FirstOrDefault(u => u.Email == vm.email);
+                .Include(u => u.Role)
+                .FirstOrDefault(u => u.Email == vm.email);
+
             var roleName = userRole.Role.RoleName;
             var userSession = new UserSession(getUser.UserId, getUser.Username, getUser.Email, roleName);
             string accessToken = GenerateAccessToken(userSession);
 
-            return new ServiceResult<string>
+            response.Cookies.Append("accessToken", accessToken, new CookieOptions
             {
-                Data = accessToken,
-                Message = "Logged in succesfully",
+                HttpOnly = true,  
+                Secure = true,    
+                SameSite = SameSiteMode.None,
+                Expires = DateTime.UtcNow.AddDays(1) 
+            });
+
+            return new ServiceResult<LoginResponse>
+            {
+                Data = new LoginResponse
+                {
+                    userName = getUser.Username,
+                    email = getUser.Email,
+                    role = roleName
+                },
+                Message = "Logged in successfully",
                 Status = ResultStatus.Ok
             };
-
         }
+
+
         //Token generation method
         private string GenerateAccessToken(UserSession user)
         {
@@ -137,7 +165,7 @@ namespace FLMS.Services.User
                 issuer: _configuration["AccessToken:Issuer"],
                 audience: _configuration["AccessToken:Audience"],
                 claims: userClaims,
-                expires: DateTime.UtcNow.AddDays(7),
+                expires: DateTime.UtcNow.AddDays(1),
                 signingCredentials: credentials
             );
             return new JwtSecurityTokenHandler().WriteToken(accessToken);
