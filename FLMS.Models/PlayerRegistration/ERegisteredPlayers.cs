@@ -1,13 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace FLMS.Models.RegisteredPlayers
+namespace FLMS.Models.PlayerRegistration
 {
     public class ERegisteredPlayers
     {
+        [Key]
         public int Id { get; set; }
         public int SeasonId { get; set; }
         public string Name { get; set; }
