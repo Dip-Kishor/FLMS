@@ -1,5 +1,7 @@
 using FLMS.Data;
+using FLMS.Services.TokenValidation;
 using FLMS.Services.User;
+using FLMS.Web;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -15,12 +17,15 @@ builder.Services.AddDbContext<FLMSContext>(options =>
 
 
 builder.Services.AddScoped<SUser>();
+builder.Services.AddSingleton<ITokenBlacklistService, STokenBlacklistService>();
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowReactApp",
         builder =>
         {
-            builder.WithOrigins("http://localhost:5173")  // React frontend URL
+            //builder.WithOrigins("http://localhost:5173") 
+            builder.WithOrigins("http://localhost:3000") 
                    .AllowCredentials()
                    .AllowAnyMethod()
                    .AllowAnyHeader();
@@ -102,11 +107,10 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
-app.UseAuthentication();
-
 app.UseRouting();
-
+app.UseAuthentication();
 app.UseAuthorization();
+app.UseMiddleware<TokenMiddleWare>();
 
 app.MapControllerRoute(
     name: "default",
