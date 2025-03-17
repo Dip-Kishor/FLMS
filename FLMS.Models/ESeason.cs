@@ -14,5 +14,6 @@ namespace FLMS.Models
         public string SeasonName { get; set; }
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
+        public bool IsCurrentSeason { get; set; }
     }
 }

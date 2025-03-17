@@ -87,6 +87,7 @@ namespace FLMS.Services.User
         }
         public ServiceResult<LoginResponse> Login(LoginVM vm, HttpResponse response)
         {
+            response.Cookies.Delete("accessToken");
             if (vm == null)
             {
                 return new ServiceResult<LoginResponse>
@@ -140,7 +141,8 @@ namespace FLMS.Services.User
                 {
                     userName = getUser.Username,
                     email = getUser.Email,
-                    role = roleName
+                    role = roleName,
+                    token = "abc"
                 },
                 Message = "Logged in successfully",
                 Status = ResultStatus.Ok
