@@ -12,18 +12,20 @@ namespace FLMS.Models.PlayerRegistration
         [Key]
         public int Id { get; set; }
         public int SeasonId { get; set; }
+        public int UserId { get; set; }
         public string Name { get; set; }
         public string Email { get; set; }
         public GenderType Gender { get; set; }
         public string EFootballId { get; set; }
         public string InGameName { get; set; }
-        public string ImageUrl { get; set; }
+        public string? ImageUrl { get; set; }
+        public bool IsApproved { get; set; }
         public virtual ESeason Season { get; set; }
     }
     public enum GenderType
     {
-        Male,
-        Female,
-        Others
+        Male=0,
+        Female =1,
+        Others=2
     }
 }

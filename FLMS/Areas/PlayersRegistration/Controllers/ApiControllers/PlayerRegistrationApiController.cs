@@ -1,34 +1,39 @@
 ﻿using CommonServices;
+using FLMS.Services.PlayersRegistration;
 using FLMS.Services.PlayersRegistration.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FLMS.Web.Areas.PlayersRegistration.Controllers.ApiControllers
 {
+    [AllowAnonymous]
     [ApiController]
     [Route("api/[controller]")]
     public class PlayerRegistrationApiController : ControllerBase
     {
-        public IActionResult Index()
+        private readonly SPlayerRegistration _playerRegistration;
+        private readonly IWebHostEnvironment _webHostEnvironment;
+        public PlayerRegistrationApiController(SPlayerRegistration playerRegistration, IWebHostEnvironment webHostingEnvironment)
         {
-            return Ok();
+            _playerRegistration = playerRegistration;
+            _webHostEnvironment = webHostingEnvironment;
+
         }
         [HttpPost("register")]
-        public async Task<ServiceResult<PlayersRegistrationVM>> Register([FromForm] PlayersRegistrationVM vm)
+        public ServiceResult<PlayersRegistrationVM>Create([FromForm]PlayersRegistrationVM vm,IFormFile? imageFile)
         {
-            if (vm.ImageUrl != null && vm.ImageUrl.Length > 0)
+            string uploads = Path.Combine(_webHostEnvironment.WebRootPath, "uploads");
+            if (!Directory.Exists(uploads))
             {
-                var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images", vm.ImageUrl.FileName);
-
-                Directory.CreateDirectory(Path.GetDirectoryName(filePath));
-
-                using (var stream = new FileStream(filePath, FileMode.Create))
-                {
-                    await vm.ImageUrl.CopyToAsync(stream);
-                }
-
-                vm.ImageUrl = null; 
+                Directory.CreateDirectory(uploads);
             }
-
+            string filePath = Path.Combine(uploads, imageFile.FileName);
+            using (Stream fileStream = new FileStream(filePath, FileMode.Create))
+            {
+                imageFile.CopyTo(fileStream);
+                vm.imageUrl = "/uploads/" + imageFile.FileName;
+            }
+            var result = _playerRegistration.RegisterPlayer(vm, HttpContext);
             return new ServiceResult<PlayersRegistrationVM>()
             {
                 Data = vm,
@@ -36,6 +41,17 @@ namespace FLMS.Web.Areas.PlayersRegistration.Controllers.ApiControllers
                 Status = ResultStatus.Ok
             };
         }
+        [HttpPost("getAllPlayers")]
+        public ServiceResult<ListOfPlayers> GetAllPlayers(int seasonId)
+        {
+            var result = _playerRegistration.GetAllPlayers(seasonId);
 
+            if (result.Status == ResultStatus.Ok)
+            {
+                result.Message = $"Successfully retrieved {result.Data.playersList.Count} players.";
+            }
+
+            return result;
+        }
     }
 }

@@ -4,6 +4,7 @@ using FLMS.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FLMS.Data.Migrations
 {
     [DbContext(typeof(FLMSContext))]
-    partial class FLMSContextModelSnapshot : ModelSnapshot
+    [Migration("20250319021521_IsApprvedAddedInPlayersTable")]
+    partial class IsApprvedAddedInPlayersTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -83,9 +86,6 @@ namespace FLMS.Data.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("SeasonId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("UserId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
