@@ -1,4 +1,5 @@
 using FLMS.Data;
+using FLMS.Services.PlayersRegistration;
 using FLMS.Services.TokenValidation;
 using FLMS.Services.User;
 using FLMS.Web;
@@ -17,6 +18,7 @@ builder.Services.AddDbContext<FLMSContext>(options =>
 
 
 builder.Services.AddScoped<SUser>();
+builder.Services.AddScoped<SPlayerRegistration>();
 builder.Services.AddSingleton<ITokenBlacklistService, STokenBlacklistService>();
 
 builder.Services.AddCors(options =>
