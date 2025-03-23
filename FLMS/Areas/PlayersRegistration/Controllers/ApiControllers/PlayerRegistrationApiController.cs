@@ -20,7 +20,7 @@ namespace FLMS.Web.Areas.PlayersRegistration.Controllers.ApiControllers
 
         }
         [HttpPost("register")]
-        public ServiceResult<PlayersRegistrationVM>Create([FromForm]PlayersRegistrationVM vm,IFormFile? imageFile)
+        public ServiceResult<PlayersRegistrationVM>Create([FromForm]PlayersRegistrationVM vm,IFormFile? imageFile, IFormFile? teamImageFile)
         {
             string uploads = Path.Combine(_webHostEnvironment.WebRootPath, "uploads");
             if (!Directory.Exists(uploads))
@@ -33,12 +33,21 @@ namespace FLMS.Web.Areas.PlayersRegistration.Controllers.ApiControllers
                 imageFile.CopyTo(fileStream);
                 vm.imageUrl = "/uploads/" + imageFile.FileName;
             }
+            if (teamImageFile != null) 
+            {
+                string teamFilePath = Path.Combine(uploads, teamImageFile.FileName);
+                using (Stream teamFileStream = new FileStream(teamFilePath, FileMode.Create))
+                {
+                    teamImageFile.CopyTo(teamFileStream);
+                    vm.teamImageUrl = "/uploads/" + teamImageFile.FileName;
+                }
+            }
             var result = _playerRegistration.RegisterPlayer(vm, HttpContext);
             return new ServiceResult<PlayersRegistrationVM>()
             {
                 Data = vm,
-                Message = "Successfully registered for this season",
-                Status = ResultStatus.Ok
+                Message = result.Message,
+                Status = result.Status,
             };
         }
         [HttpPost("getAllPlayers")]

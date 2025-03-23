@@ -42,17 +42,8 @@ namespace FLMS.Services.User
                 Username = user.username,
                 Email = user.email,
                 Password = user.password, 
-                ConfirmPassword = user.confirmPassword,
             };
-            if(user.password != user.confirmPassword)
-            {
-                return new ServiceResult<UserVM>
-                {
-                    Data = null,
-                    Message = "Password and confirm password must be same",
-                    Status = ResultStatus.processError
-                };
-            }
+            
             var existingUser = _context.Users.FirstOrDefault(x => x.Email == data.Email);
             if (existingUser != null)
             {

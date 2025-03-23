@@ -23,6 +23,15 @@ namespace FLMS.Services.PlayersRegistration
         public ServiceResult<PlayersRegistrationVM> RegisterPlayer(PlayersRegistrationVM vm,HttpContext httpContext)
         {
             var token = httpContext.Request.Cookies["accessToken"];
+            if (token == null)
+            {
+                return new ServiceResult<PlayersRegistrationVM>
+                {
+                    Data = null,
+                    Message = "Session expired please login again",
+                    Status = ResultStatus.processError
+                };
+            }
             var userId = GetUserIdFromToken(token);
             var currSeason = _context.Seasons.Where(x=>x.IsCurrentSeason == true).FirstOrDefault();
             if(currSeason == null)
@@ -31,6 +40,26 @@ namespace FLMS.Services.PlayersRegistration
                 {
                     Data = null,
                     Message = "Registration is not available right now, Please come back later",
+                    Status = ResultStatus.processError
+                };
+            }
+            var seasonComplete = _context.Seasons.Where(x => x.IsSeasonComplete == false).FirstOrDefault();
+            if(seasonComplete == null)
+            {
+                return new ServiceResult<PlayersRegistrationVM>()
+                {
+                    Data = null,
+                    Message = "Registration is not available right now, Please come back later",
+                    Status = ResultStatus.processError
+                };
+            }
+            var existingUser = _context.RegisteredPlayers.Where(x => x.UserId == userId && x.SeasonId == currSeason.Id).FirstOrDefault();
+            if (existingUser != null)
+            {
+                return new ServiceResult<PlayersRegistrationVM>()
+                {
+                    Data = null,
+                    Message = "Already registered by the same user. Please login with different account",
                     Status = ResultStatus.processError
                 };
             }
@@ -45,6 +74,7 @@ namespace FLMS.Services.PlayersRegistration
                 InGameName = vm.inGameName,
                 ImageUrl = vm.imageUrl,
                 IsApproved = vm.isApproved,
+                TeamImageUrl = vm.teamImageUrl,
             };
             _context.RegisteredPlayers.Add(players);
             _context.SaveChanges();
@@ -55,10 +85,9 @@ namespace FLMS.Services.PlayersRegistration
                 Status = ResultStatus.Ok
             };
         }
-        public ServiceResult<ListOfPlayers> GetAllPlayers(int SeasonId)
+        public ServiceResult<ListOfPlayers> GetAllPlayers(int seasonId)
         {
-            var players = _context.RegisteredPlayers
-                .Where(x => x.SeasonId == SeasonId)
+            var players = _context.RegisteredPlayers.Where(x=>x.IsApproved == true && x.SeasonId == seasonId)
                 .Select(p => new PlayersRegistrationVM
                 {
                     id = p.Id,
@@ -66,10 +95,11 @@ namespace FLMS.Services.PlayersRegistration
                     name = p.Name,
                     email = p.Email,
                     gender = p.Gender,
-                    eFootballId = p.EFootballId,
+                    eFootballId = "ASBB-000-000",
                     inGameName = p.InGameName,
                     imageUrl = p.ImageUrl,
-                    isApproved = p.IsApproved
+                    isApproved = p.IsApproved,
+                    teamImageUrl =p.TeamImageUrl,
                 })
                 .ToList();
 

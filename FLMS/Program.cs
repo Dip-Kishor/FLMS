@@ -1,4 +1,5 @@
 using FLMS.Data;
+using FLMS.Services;
 using FLMS.Services.PlayersRegistration;
 using FLMS.Services.TokenValidation;
 using FLMS.Services.User;
@@ -19,6 +20,7 @@ builder.Services.AddDbContext<FLMSContext>(options =>
 
 builder.Services.AddScoped<SUser>();
 builder.Services.AddScoped<SPlayerRegistration>();
+builder.Services.AddScoped<SSeason>();
 builder.Services.AddSingleton<ITokenBlacklistService, STokenBlacklistService>();
 
 builder.Services.AddCors(options =>
@@ -27,7 +29,7 @@ builder.Services.AddCors(options =>
         builder =>
         {
             //builder.WithOrigins("http://localhost:5173") 
-            builder.WithOrigins("http://localhost:3000") 
+            builder.WithOrigins("http://localhost:3000", "https://dipkishor.vercel.app", "http://localhost:5173")
                    .AllowCredentials()
                    .AllowAnyMethod()
                    .AllowAnyHeader();

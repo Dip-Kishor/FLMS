@@ -11,6 +11,5 @@ namespace FLMS.Services.User.ViewModels
         public string username { get; set; }
         public string email { get; set; }
         public string password { get; set; }
-        public string confirmPassword { get; set; }
     }
 }

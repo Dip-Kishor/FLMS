@@ -19,6 +19,7 @@ namespace FLMS.Models.PlayerRegistration
         public string EFootballId { get; set; }
         public string InGameName { get; set; }
         public string? ImageUrl { get; set; }
+        public string? TeamImageUrl { get; set; }
         public bool IsApproved { get; set; }
         public virtual ESeason Season { get; set; }
     }
