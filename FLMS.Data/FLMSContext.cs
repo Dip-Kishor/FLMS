@@ -1,4 +1,5 @@
 ﻿using FLMS.Models;
+using FLMS.Models.FixturesAndResults;
 using FLMS.Models.PlayerRegistration;
 using FLMS.Models.User;
 using Microsoft.EntityFrameworkCore;
@@ -20,5 +21,6 @@ namespace FLMS.Data
         public DbSet<EUserRole> UserRoles { get; set; }
         public DbSet<ERegisteredPlayers> RegisteredPlayers { get; set; }
         public DbSet<ESeason> Seasons { get; set; }
+        public DbSet<EFixturesAndResults> FixturesAndResults { get; set; }
     }
 }

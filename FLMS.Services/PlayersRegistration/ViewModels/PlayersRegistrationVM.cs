@@ -25,6 +25,7 @@ namespace FLMS.Services.PlayersRegistration.ViewModels
         public string inGameName { get; set; }
         public string? imageUrl { get; set; }
         public string? teamImageUrl { get; set; }
+        public int  userId { get; set; }
         public bool isApproved { get; set; }
     }
     
