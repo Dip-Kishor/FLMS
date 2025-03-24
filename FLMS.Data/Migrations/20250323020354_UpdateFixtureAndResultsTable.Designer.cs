@@ -4,6 +4,7 @@ using FLMS.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FLMS.Data.Migrations
 {
     [DbContext(typeof(FLMSContext))]
-    partial class FLMSContextModelSnapshot : ModelSnapshot
+    [Migration("20250323020354_UpdateFixtureAndResultsTable")]
+    partial class UpdateFixtureAndResultsTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -59,19 +62,22 @@ namespace FLMS.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("Group")
-                        .HasColumnType("int");
-
                     b.Property<bool>("IsCompleted")
+                        .HasColumnType("bit");
+
+                    b.Property<bool?>("IsGroupA")
+                        .HasColumnType("bit");
+
+                    b.Property<bool?>("IsGroupB")
                         .HasColumnType("bit");
 
                     b.Property<bool>("IsPostponed")
                         .HasColumnType("bit");
 
-                    b.Property<DateTime?>("MatchDate")
+                    b.Property<DateTime>("MatchDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<DateTime?>("MatchTime")
+                    b.Property<DateTime>("MatchTime")
                         .HasColumnType("datetime2");
 
                     b.Property<int>("SeasonId")
