@@ -4,6 +4,7 @@ using FLMS.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FLMS.Data.Migrations
 {
     [DbContext(typeof(FLMSContext))]
-    partial class FLMSContextModelSnapshot : ModelSnapshot
+    [Migration("20250325025415_ChnagedTimeSpan")]
+    partial class ChnagedTimeSpan
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -59,13 +62,10 @@ namespace FLMS.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int?>("Group")
+                    b.Property<int>("Group")
                         .HasColumnType("int");
 
                     b.Property<bool>("IsCompleted")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsPlayoff")
                         .HasColumnType("bit");
 
                     b.Property<bool>("IsPostponed")
@@ -76,9 +76,6 @@ namespace FLMS.Data.Migrations
 
                     b.Property<TimeSpan?>("MatchTime")
                         .HasColumnType("time");
-
-                    b.Property<int?>("PlayoffType")
-                        .HasColumnType("int");
 
                     b.Property<int>("SeasonId")
                         .HasColumnType("int");
