@@ -4,6 +4,7 @@ using FLMS.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FLMS.Data.Migrations
 {
     [DbContext(typeof(FLMSContext))]
-    partial class FLMSContextModelSnapshot : ModelSnapshot
+    [Migration("20250325133601_AddedboolForPlayoff")]
+    partial class AddedboolForPlayoff
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -76,9 +79,6 @@ namespace FLMS.Data.Migrations
 
                     b.Property<TimeSpan?>("MatchTime")
                         .HasColumnType("time");
-
-                    b.Property<int?>("PlayoffType")
-                        .HasColumnType("int");
 
                     b.Property<int>("SeasonId")
                         .HasColumnType("int");

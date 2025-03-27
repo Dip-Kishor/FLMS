@@ -1,8 +1,10 @@
 ﻿using CommonServices;
 using FLMS.Data;
+using FLMS.Data.SP_Result;
 using FLMS.Models.FixturesAndResults;
 using FLMS.Services.FIxturesAndResults.ViewModels;
 using FLMS.Services.PlayersRegistration.ViewModels;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -85,6 +87,96 @@ namespace FLMS.Services.FIxturesAndResults
                 Data = model
             };
         }
+        public ServiceResult<List<FixturesAndResultsVM>> GetFixtures(int seasonId)
+        {
+            var result = _context.FixturesAndResults.Where(x => x.SeasonId == seasonId).ToList();
+            if(result.Count==0)
+            {
+                return new ServiceResult<List<FixturesAndResultsVM>>()
+                {
+                    Data = null,
+                    Message = "No fixtures for the season",
+                    Status = ResultStatus.processError,
+                };
+            }
+            var users = _context.RegisteredPlayers.Where(x => x.SeasonId == seasonId).ToList();
+            var user = _context.Users.ToList();
+            var data = (from r in result
+                        join u1 in users on r.UserId1 equals u1.Id into user1Data
+                        from ud1 in user1Data.DefaultIfEmpty() 
+                        join u2 in users on r.UserId2 equals u2.Id into user2Data
+                        from ud2 in user2Data.DefaultIfEmpty() 
+                        select new FixturesAndResultsVM
+                        {
+                            Id = r.Id,
+                            SeasonId = r.SeasonId,
+                            MatchDate = r.MatchDate?.ToString("yyyy-MM-dd") ?? "N/A",
+                            MatchTime = r.MatchTime?.ToString() ?? "N/A",
+                            UserId1 = r.UserId1,
+                            ImageUrl1 = ud1?.ImageUrl,
+                            UserName1 = ud1?.Name ?? "Unknown User",
+                            User1Score = r.User1Score ?? 0,
+                            User2Score = r.User2Score ?? 0,
+                            UserId2 = r.UserId2,
+                            ImageUrl2 = ud2?.ImageUrl,
+                            UserName2 = ud2?.Name ?? "Unknown User", 
+                            TiebrekerScoreUser1 = r.TiebrekerScoreUser1 ?? 0,
+                            TiebrekerScoreUser2 = r.TiebrekerScoreUser2 ?? 0,
+                            Group = r.Group,
+                            IsPostponed = r.IsPostponed,
+                            IsCompleted = r.IsCompleted,
+                            IsPlayOff= r.IsPlayoff,
+                            PlayOffType = r.PlayoffType
+                        }).ToList();
+
+            return new ServiceResult<List<FixturesAndResultsVM>>
+            {
+                Status = ResultStatus.Ok,
+                Message ="Success",
+                Data = data,
+            };
+        }
+
+        public ServiceResult<FixturesAndResultsVM> UpdateFixture(FixturesAndResultsVM vm)
+        {
+            var data = new EFixturesAndResults
+            {
+                Id = vm.Id,
+                SeasonId = vm.SeasonId,
+                MatchDate =DateTime.Parse(vm.MatchDate),
+                MatchTime = TimeSpan.Parse(vm.MatchTime),
+                UserId1 = vm.UserId1,
+                User1Score = vm.User1Score ?? 0,
+                User2Score = vm.User2Score ?? 0,
+                UserId2 = vm.UserId2,
+                TiebrekerScoreUser1 = vm.TiebrekerScoreUser1 ?? 0,
+                TiebrekerScoreUser2 = vm.TiebrekerScoreUser2 ?? 0,
+                Group = vm.Group,
+                IsPostponed = vm.IsPostponed,
+                IsCompleted = vm.IsCompleted
+            };
+            var res = _context.FixturesAndResults.Update(data);
+            _context.SaveChanges();
+            return new ServiceResult<FixturesAndResultsVM>()
+            {
+                Data = vm,
+                Message = "Successfully updated fixtures data",
+                Status = ResultStatus.Ok,
+            };
+        }
+
+        public async Task<ServiceResult<List<Table_SP_Results>>> GetTableAsync(int seasonId)
+        {
+            var tableResults = await _context.GetTableReportAsync(seasonId); 
+
+            return new ServiceResult<List<Table_SP_Results>>
+            {
+                Data = tableResults,
+                Message = "Success",
+                Status = ResultStatus.Ok
+            };
+        }
+
 
         private Dictionary<GroupType, List<int>> AssignPlayersToGroups(List<int> players, int numberOfGroups)
         {
@@ -113,20 +205,39 @@ namespace FLMS.Services.FIxturesAndResults
                 {
                     for (int j = i + 1; j < players.Count; j++)
                     {
-                        fixtures.Add(new EFixturesAndResults
+                        // Alternate the positions of the players for each match
+                        if (matchCount % 2 == 0)
                         {
-                            SeasonId = seasonId,
-                            UserId1 = players[i],
-                            UserId2 = players[j],
-                            Group = group,
-                            IsPostponed = false,
-                            IsCompleted = false,
-                            MatchDate = null,
-                            MatchTime = null
-                        });
+                            fixtures.Add(new EFixturesAndResults
+                            {
+                                SeasonId = seasonId,
+                                UserId1 = players[i],
+                                UserId2 = players[j],
+                                Group = group,
+                                IsPostponed = false,
+                                IsCompleted = false,
+                                MatchDate = null,
+                                MatchTime = null
+                            });
+                        }
+                        else
+                        {
+                            fixtures.Add(new EFixturesAndResults
+                            {
+                                SeasonId = seasonId,
+                                UserId1 = players[j],
+                                UserId2 = players[i],
+                                Group = group,
+                                IsPostponed = false,
+                                IsCompleted = false,
+                                MatchDate = null,
+                                MatchTime = null
+                            });
+                        }
                     }
                 }
             }
         }
+
     }
 }
