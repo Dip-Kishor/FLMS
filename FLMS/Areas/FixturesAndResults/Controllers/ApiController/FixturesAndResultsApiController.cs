@@ -45,6 +45,16 @@ namespace FLMS.Web.Areas.FixturesAndResults.Controllers.ApiController
             return result;
         }
 
+        [HttpPost("getPlayoffData")]
+        public ServiceResult<List<FixturesAndResultsVM>> GetPlayoffData(int seasonId)
+        {
+            var result = _fixtureServices.GetPlaypffData(seasonId);
+            if(result.Status != ResultStatus.Ok) 
+            {
+                return null;
+            }
+            return result;
+        }
         //admin and superadmin
         [HttpPost("createFixtures")]
         public ServiceResult<FixtureAndResultCreationVM> CreateFixture(FixtureAndResultCreationVM model)

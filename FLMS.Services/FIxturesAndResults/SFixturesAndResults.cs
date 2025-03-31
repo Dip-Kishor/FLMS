@@ -89,7 +89,7 @@ namespace FLMS.Services.FIxturesAndResults
         }
         public ServiceResult<List<FixturesAndResultsVM>> GetFixtures(int seasonId)
         {
-            var result = _context.FixturesAndResults.Where(x => x.SeasonId == seasonId).ToList();
+            var result = _context.FixturesAndResults.Where(x => x.SeasonId == seasonId && x.IsPlayoff==false).ToList();
             if(result.Count==0)
             {
                 return new ServiceResult<List<FixturesAndResultsVM>>()
@@ -100,7 +100,6 @@ namespace FLMS.Services.FIxturesAndResults
                 };
             }
             var users = _context.RegisteredPlayers.Where(x => x.SeasonId == seasonId).ToList();
-            var user = _context.Users.ToList();
             var data = (from r in result
                         join u1 in users on r.UserId1 equals u1.Id into user1Data
                         from ud1 in user1Data.DefaultIfEmpty() 
@@ -177,7 +176,54 @@ namespace FLMS.Services.FIxturesAndResults
             };
         }
 
-
+        public ServiceResult<List<FixturesAndResultsVM>> GetPlaypffData(int seasonId)
+        {
+            var details = _context.FixturesAndResults.Where(x=>x.SeasonId==seasonId && x.IsPlayoff==true).ToList();
+            if (details.Count < 0)
+            {
+                return new ServiceResult<List<FixturesAndResultsVM>>()
+                {
+                    Data = null,
+                    Message = "No playoff data available",
+                    Status = ResultStatus.processError
+                };
+            }
+            var users = _context.RegisteredPlayers.Where(x=>x.SeasonId==seasonId).ToList();
+            var data = (from r in details
+                        join u1 in users on r.UserId1 equals u1.Id into user1data
+                        from ud1 in user1data.DefaultIfEmpty()
+                        join u2 in users on r.UserId2 equals u2.Id into user2data
+                        from ud2 in user2data.DefaultIfEmpty()
+                        select new FixturesAndResultsVM
+                        {
+                            Id = r.Id,
+                            SeasonId = r.SeasonId,
+                            MatchDate = r.MatchDate?.ToString("yyyy-MM-dd") ?? "N/A",
+                            MatchTime = r.MatchTime?.ToString() ?? "N/A",
+                            UserId1 = r.UserId1,
+                            ImageUrl1 = ud1?.ImageUrl,
+                            UserName1 = ud1?.Name ?? "Unknown User",
+                            User1Score = r.User1Score ?? 0,
+                            User2Score = r.User2Score ?? 0,
+                            UserId2 = r.UserId2,
+                            ImageUrl2 = ud2?.ImageUrl,
+                            UserName2 = ud2?.Name ?? "Unknown User",
+                            TiebrekerScoreUser1 = r.TiebrekerScoreUser1 ?? 0,
+                            TiebrekerScoreUser2 = r.TiebrekerScoreUser2 ?? 0,
+                            Group = r.Group,
+                            IsPostponed = r.IsPostponed,
+                            IsCompleted = r.IsCompleted,
+                            IsPlayOff = r.IsPlayoff,
+                            PlayOffType = r.PlayoffType
+                        }).ToList();
+            return new ServiceResult<List<FixturesAndResultsVM>>()
+            {
+                Data = data,
+                Message = "Successfully retrieved",
+                Status = ResultStatus.Ok
+            };
+        }
+        
         private Dictionary<GroupType, List<int>> AssignPlayersToGroups(List<int> players, int numberOfGroups)
         {
             var shuffledPlayers = players.OrderBy(x => Guid.NewGuid()).ToList();

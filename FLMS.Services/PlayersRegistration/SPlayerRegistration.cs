@@ -120,6 +120,62 @@ namespace FLMS.Services.PlayersRegistration
                 Status = ResultStatus.Ok
             };
         }
+        public ServiceResult<ListOfPlayers> GetPlayersForAdmin(int seasonId)
+        {
+            var players = _context.RegisteredPlayers.Where(x => x.SeasonId == seasonId)
+                .Select(p => new PlayersRegistrationVM
+                {
+                    id = p.Id,
+                    seasonId = p.SeasonId,
+                    name = p.Name,
+                    email = p.Email,
+                    gender = p.Gender,
+                    eFootballId = "ASBB-000-000",
+                    inGameName = p.InGameName,
+                    imageUrl = p.ImageUrl,
+                    isApproved = p.IsApproved,
+                    teamImageUrl = p.TeamImageUrl,
+                })
+                .ToList();
+
+            if (players == null)  // Handle empty results properly
+            {
+                return new ServiceResult<ListOfPlayers>()
+                {
+                    Data = null,
+                    Message = "No registered players found for this season.",
+                    Status = ResultStatus.processError
+                };
+            }
+
+            return new ServiceResult<ListOfPlayers>()
+            {
+                Data = new ListOfPlayers { playersList = players },  // Wrap inside ListOfPlayers
+                Message = "Successfully retrieved the registered player data.",
+                Status = ResultStatus.Ok
+            };
+        }
+        public ServiceResult<int> Approve(int playerId)
+        {
+            var player = _context.RegisteredPlayers.FirstOrDefault(x => x.Id == playerId);
+            if(player == null)
+            {
+                return new ServiceResult<int>
+                {
+                    Data = 0,
+                    Message = "Player not found",
+                    Status = ResultStatus.processError
+                };
+            }
+            player.IsApproved = true;
+            _context.SaveChanges();
+            return new ServiceResult<int>
+            {
+                Data = 1,
+                Message = "Approved successfully",
+                Status = ResultStatus.Ok
+            };
+        }
         public int? GetUserIdFromToken(string token)
         {
             //var token = httpContext.Request.Cookies["accessToken"];

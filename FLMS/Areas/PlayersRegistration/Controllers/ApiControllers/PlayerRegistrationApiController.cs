@@ -62,5 +62,28 @@ namespace FLMS.Web.Areas.PlayersRegistration.Controllers.ApiControllers
 
             return result;
         }
+        [HttpPost("GetPlayersForAdmin")]
+        public ServiceResult<ListOfPlayers> GetPlayersForAdmin(int seasonId)
+        {
+            var result = _playerRegistration.GetPlayersForAdmin(seasonId);
+
+            if (result.Status == ResultStatus.Ok)
+            {
+                result.Message = $"Successfully retrieved {result.Data.playersList.Count} players.";
+            }
+
+            return result;
+        }
+        [HttpPost("ApprovePlayers")]
+        public ServiceResult<int> ApprovePlayers (int playerId)
+        {
+            var result = _playerRegistration.Approve(playerId);
+            return new ServiceResult<int>()
+            {
+                Data = 1,
+                Message = result.Message,
+                Status = result.Status,
+            };
+        }
     }
 }

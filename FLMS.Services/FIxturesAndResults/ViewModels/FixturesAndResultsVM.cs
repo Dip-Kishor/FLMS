@@ -44,5 +44,4 @@ namespace FLMS.Services.FIxturesAndResults.ViewModels
     {
         public int Id { get; set; }
     }
-   
 }

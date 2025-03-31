@@ -32,12 +32,14 @@ namespace FLMS.Models.FixturesAndResults
     public enum GroupType
     {
         GroupA = 1,
-        GroupB = 2, GroupC = 3, GroupD = 4
+        GroupB = 2, 
+        GroupC = 3, 
+        GroupD = 4
     }
     public enum PlayOffType
     {
-        QuarterFinal =1,
-        SemiFinal =2,
+        QuarterFinal = 1,
+        SemiFinal = 2,
         Final = 3,
         Qualifier=4,
         Eliminator1=5, 
